@@ -1,0 +1,15 @@
+//exemplos de requisições
+
+GET http://localhost:3000/supplies
+
+###
+
+POST http://localhost:3000/supplies
+Content-Type: application/json
+
+{
+  "name": "Ração Premix",
+  "quantity": 10,
+  "minimumQuantity": 15,
+  "expirationDate": "2026-08-12"
+}
