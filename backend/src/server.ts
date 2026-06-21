@@ -14,6 +14,6 @@ app.get('/', (req: Request, res: Response) => {
     res.send("Servidor rodando na porta 3000");
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
