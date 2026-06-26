@@ -173,9 +173,26 @@ export default function App() {
           renderItem={({ item }) => {
             const isLowStock = item.quantity < item.minimumQuantity;
 
+            const today = new Date().toISOString().split('T')[0];
+            const isExpired = item.expirationDate && item.expirationDate < today;
+
+            let isExpiringSoon = false;
+
+            if(item.expirationDate && !isExpired){
+              const itemTime = new Date(item.expirationDate).getTime();
+              const todayTime = new Date(today).getTime();
+              const differenceInTime = itemTime - todayTime;
+
+              const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+
+              if(differenceInTime <= thirtyDaysInMs){
+                isExpiringSoon = true;
+              };
+            }
+
             return (
               <TouchableOpacity
-                style={[styles.card, isLowStock && styles.isLowCard]}
+                style={[styles.card, isLowStock && styles.isLowCard, isExpired && styles.isExpiredCard]}
                 onPress={() => setOpenEditSupplyModal(item)}
                 activeOpacity={0.7}
               >
@@ -183,6 +200,8 @@ export default function App() {
                 <Text style={styles.infoText}>Quantidade: {item.quantity}</Text>
                 {item.expirationDate ? <Text style={styles.infoText}>Validade: {item.expirationDate}</Text> : null}
                 {isLowStock && <Text style={styles.alertText}>Estoque baixo!</Text>}
+                {isExpired && <Text style={styles.expiredText}>❌ Produto Vencido!</Text>}
+                {isExpiringSoon && <Text style={styles.warningText}>⚠️ Vence em breve!</Text>}
                 
                 <View style={styles.cardFooter}>
                   <View style={styles.quantityContainer}>
@@ -431,5 +450,21 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  isExpiredCard: {
+    borderColor: '#b7094c',
+    backgroundColor: '#fff0f3'
+  },
+  expiredText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 4,
+    color: '#b7094c'
+  },
+  warningText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 4,
+    color: '#d97706'
   }
 });
