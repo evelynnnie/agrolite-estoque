@@ -1,4 +1,5 @@
-import {supplies} from "./database";
+// Utilizando armazenamento temporário em memória.
+import { supplies } from "./database";
 import { Router, Request, Response } from "express";
 import { AgriculturalSupplies } from "./types/agriculturalSupplies";
 
@@ -8,10 +9,17 @@ router.get('/supplies', (req: Request, res: Response) => {
     res.json(supplies)
 });
 
-router.post('/supplies', (req: Request<{}, {}, AgriculturalSupplies >, res: Response) => {
-    const {name, quantity, minimumQuantity, expirationDate } = req.body;
+router.post('/supplies', (req: Request<{}, {}, AgriculturalSupplies>, res: Response) => {
+    const { name, quantity, minimumQuantity, expirationDate } = req.body;
 
-    const newSupply = { id: Date.now().toString(), name, quantity: Number(quantity), minimumQuantity: Number(minimumQuantity), expirationDate };
+    // Garante a geração de um ID único no backend
+    const newSupply = {
+        id: Date.now().toString(),
+        name, 
+        quantity: Number(quantity), 
+        minimumQuantity: Number(minimumQuantity), 
+        expirationDate
+    };
     supplies.push(newSupply);
 
     console.log(`Produto criado: ${name}, Id: ${newSupply.id}, Quantidade: ${quantity}, Quantidade Mínima: ${minimumQuantity}, Data de Expiração: ${expirationDate}`);
@@ -19,21 +27,22 @@ router.post('/supplies', (req: Request<{}, {}, AgriculturalSupplies >, res: Resp
     res.status(201).json(newSupply);
 });
 
-router.put('/supplies/:id', (req: Request<{id: string}, {}, Partial<AgriculturalSupplies>>, res: Response) => {
+router.put('/supplies/:id', (req: Request<{ id: string }, {}, Partial<AgriculturalSupplies>>, res: Response) => {
     const suppliesId = req.params.id;
-    const {name, quantity, minimumQuantity, expirationDate} = req.body;
+    const { name, quantity, minimumQuantity, expirationDate } = req.body;
 
-    const index = supplies.findIndex(supply => supply.id === suppliesId); 
+    const index = supplies.findIndex(supply => supply.id === suppliesId);
 
-    if(index === -1){
-        return res.status(404).json({error: "Produto não encontrado"});
+    if (index === -1) {
+        return res.status(404).json({ error: "Produto não encontrado" });
     }
-    
+
     const currentSupply = supplies[index];
 
-    supplies[index] = { 
+    // Substitui apenas os campos enviados no corpo da requisição
+    supplies[index] = {
         id: suppliesId,
-        name: name!== undefined ? name : currentSupply.name,
+        name: name !== undefined ? name : currentSupply.name,
         quantity: quantity !== undefined ? Number(quantity) : currentSupply.quantity,
         minimumQuantity: minimumQuantity !== undefined ? Number(minimumQuantity) : currentSupply.minimumQuantity,
         expirationDate: expirationDate !== undefined ? expirationDate : currentSupply.expirationDate
@@ -43,13 +52,13 @@ router.put('/supplies/:id', (req: Request<{id: string}, {}, Partial<Agricultural
     res.json(supplies[index]);
 });
 
-router.delete('/supplies/:id', (req: Request<{id: string}>, res: Response) => {
+router.delete('/supplies/:id', (req: Request<{ id: string }>, res: Response) => {
     const suppliesId = req.params.id;
 
     const index = supplies.findIndex(supply => supply.id === suppliesId);
 
-    if (index === -1){
-        return res.status(404).json({error: "Produto não encontrado"})
+    if (index === -1) {
+        return res.status(404).json({ error: "Produto não encontrado" })
     };
 
     supplies.splice(index, 1);
